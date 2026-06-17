@@ -235,7 +235,7 @@ export default function PhoneLoginPage() {
                   </div>
                   <div>
                     <h2 className="font-extrabold text-[28px] tracking-tight">Phone sign-in</h2>
-                    <p className="text-muted-foreground text-sm">We'll send you a one-time password</p>
+                    <p className="text-muted-foreground text-sm">We&apos;ll send you a one-time password</p>
                   </div>
                 </div>
               </div>

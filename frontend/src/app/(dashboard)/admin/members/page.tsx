@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { usersApi, membershipsApi, authApi, trainersApi, staffsApi, membershipPlansApi } from '@/lib/api';
 import { formatDate, getInitials, getMembershipBadgeColor } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
 import { StatsCard } from '@/components/shared/StatsCard';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
@@ -370,6 +371,7 @@ function RenewModal({ member, onClose, onSuccess, plans = [] }: any) {
 
 /* ─── Members tab content ─────────────────────────────────── */
 function MembersTab() {
+  const { user: currentUser } = useAuthStore();
   const [members, setMembers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState<any>(null);
@@ -454,7 +456,7 @@ function MembersTab() {
             <div className="px-6 -mt-8 pb-0"><div className="w-16 h-16 gradient-brand rounded-2xl overflow-hidden shadow-lg border-2 border-card flex items-center justify-center text-white font-extrabold text-xl">{modal.m.avatar?<img src={modal.m.avatar} alt="av" className="w-full h-full object-cover"/>:getInitials(modal.m.firstName,modal.m.lastName)}</div></div>
             <div className="px-6 py-3"><h2 className="text-xl font-extrabold">{modal.m.firstName} {modal.m.lastName}</h2>{modal.m.memberCode&&<p className="text-xs font-mono text-primary font-bold">#{modal.m.memberCode}</p>}</div>
             <div className="px-6 pb-4 space-y-1">
-              {[{I:Mail,l:'Email',v:modal.m.email},{I:Phone,l:'Phone',v:modal.m.phone},{I:Hash,l:'Member Code',v:modal.m.memberCode},{I:Calendar,l:'Joined',v:formatDate(modal.m.createdAt)}].map(({I,l,v})=>(
+              {[{I:Mail,l:'Email',v:modal.m.email},{I:Phone,l:'Phone',v:modal.m.phone},{I:Hash,l:'Member Code',v:modal.m.memberCode},{I:Calendar,l:'Joined',v:formatDate(modal.m.createdAt, currentUser?.timezone)}].map(({I,l,v})=>(
                 <div key={l} className="flex items-center gap-3 py-2.5 border-b border-border/40 last:border-0">
                   <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center"><I className="w-3.5 h-3.5 text-muted-foreground"/></div>
                   <div><p className="text-xs text-muted-foreground">{l}</p><p className="text-sm font-semibold">{v||'—'}</p></div>
@@ -497,7 +499,7 @@ function MembersTab() {
                     {m.phone&&<div className="flex items-center gap-2 text-xs text-muted-foreground"><Phone className="w-3.5 h-3.5 shrink-0"/>{m.phone}</div>}
                   </div>
                   {ms?<div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700/40 rounded-xl"><div className="flex items-center gap-2"><Crown className="w-3.5 h-3.5 text-amber-500"/><span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">{ms.plan?.type??ms.type}</span></div><span className="text-xs font-extrabold px-2.5 py-0.5 rounded-lg bg-emerald-500 text-white">ACTIVE</span></div>:<div className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-xl border border-dashed border-border"><Crown className="w-3.5 h-3.5 text-muted-foreground/40"/><span className="text-xs text-muted-foreground">No membership</span></div>}
-                  <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground"><Calendar className="w-3 h-3"/>Joined {formatDate(m.createdAt)}</div>
+                  <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground"><Calendar className="w-3 h-3"/>Joined {formatDate(m.createdAt, currentUser?.timezone)}</div>
                 </div>
               </div>
             );

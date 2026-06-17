@@ -13,6 +13,7 @@ interface User {
   phone?: string;
   qrCode?: string;
   memberCode?: string;
+  timezone?: string;
 }
 
 interface AuthState {

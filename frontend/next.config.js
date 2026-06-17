@@ -38,9 +38,16 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Lint was just introduced (eslint.config.mjs) on a codebase with no prior lint history —
+  // next/core-web-vitals surfaces a large pre-existing backlog (react/no-unescaped-entities,
+  // react-hooks error-severity rules) that isn't fixed yet. Run `npm run lint` explicitly;
+  // don't let it block production builds until that backlog is cleared.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Tree-shake large icon/chart libs — cuts dev compile time significantly
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts', '@radix-ui/react-icons'],
+    optimizePackageImports: ['lucide-react', 'recharts', '@radix-ui/react-icons', 'date-fns', 'firebase'],
   },
   images: {
     remotePatterns: [

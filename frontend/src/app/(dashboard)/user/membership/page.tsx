@@ -150,11 +150,11 @@ export default function UserMembershipPage() {
             <div className="grid grid-cols-2 gap-4 mt-6">
               <div>
                 <p className="text-orange-200 text-xs">Start Date</p>
-                <p className="font-semibold">{formatDate(activeMembership.startDate)}</p>
+                <p className="font-semibold">{formatDate(activeMembership.startDate, user?.timezone)}</p>
               </div>
               <div>
                 <p className="text-orange-200 text-xs">Expiry Date</p>
-                <p className="font-semibold">{formatDate(activeMembership.endDate)}</p>
+                <p className="font-semibold">{formatDate(activeMembership.endDate, user?.timezone)}</p>
               </div>
             </div>
 
@@ -330,7 +330,7 @@ export default function UserMembershipPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{m.type}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(m.startDate)} — {formatDate(m.endDate)}
+                      {formatDate(m.startDate, user?.timezone)} — {formatDate(m.endDate, user?.timezone)}
                     </p>
                   </div>
                   <div className="text-right">

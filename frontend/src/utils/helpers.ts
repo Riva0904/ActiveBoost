@@ -1,3 +1,4 @@
+// Superseded by frontend/src/lib/utils.ts (canonical, timezone-aware). Not currently imported anywhere — kept for now, do not add new usages.
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 
 export const formatDate = (date: string | Date, fmt = 'dd MMM yyyy') => {

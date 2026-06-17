@@ -50,6 +50,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* Mobile menu */}
       <button
         onClick={onMenuClick}
+        aria-label="Open menu"
         className="lg:hidden p-2 hover:bg-muted rounded-xl text-muted-foreground transition-colors"
       >
         <Menu className="w-5 h-5" />
@@ -68,7 +69,11 @@ export function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       {/* Mobile search toggle */}
-      <button className="md:hidden p-2 hover:bg-muted rounded-xl text-muted-foreground" onClick={() => setShowSearch(!showSearch)}>
+      <button
+        className="md:hidden p-2 hover:bg-muted rounded-xl text-muted-foreground"
+        onClick={() => setShowSearch(!showSearch)}
+        aria-label={showSearch ? 'Close search' : 'Open search'}
+      >
         {showSearch ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
       </button>
 
@@ -77,6 +82,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         {mounted && (
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             className="group w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
           >
             {theme === 'dark'
@@ -88,6 +94,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Notifications */}
         <Link
           href={`${rolePath}/notifications`}
+          aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
           className={cn(
             'relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted transition-all group',
             unreadCount > 0 ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
@@ -106,6 +113,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
+            aria-label="User menu"
+            aria-expanded={showUserMenu}
             className="flex items-center gap-2.5 px-2 py-1.5 hover:bg-muted rounded-xl transition-all group"
           >
             <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm shrink-0 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-200">

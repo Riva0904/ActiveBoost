@@ -125,24 +125,18 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
   const [chatUnread, setChatUnread] = useState(0);
 
+  // Fetch once on mount + stay live via socket — not on every navigation, which
+  // was firing a full getAllConversations() round trip on every route change
+  // just to recompute a badge count.
   useEffect(() => {
     if (user?.role !== 'GYM_ADMIN') return;
 
-    const fetchUnread = () => {
-      chatApi.getAllConversations()
-        .then((res: any) => {
-          const convs = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
-          setChatUnread(convs.reduce((s: number, c: any) => s + (c.unreadAdmin || 0), 0));
-        })
-        .catch(() => {});
-    };
-
-    fetchUnread();
-
-    if (pathname === '/admin/chat') {
-      setChatUnread(0);
-      return;
-    }
+    chatApi.getAllConversations()
+      .then((res: any) => {
+        const convs = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : [];
+        setChatUnread(convs.reduce((s: number, c: any) => s + (c.unreadAdmin || 0), 0));
+      })
+      .catch(() => {});
 
     const socket = getSocket();
     const handleMsg = (msg: any) => {
@@ -152,7 +146,11 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     };
     socket.on('chat:message', handleMsg);
     return () => { socket.off('chat:message', handleMsg); };
-  }, [user?.role, pathname]);
+  }, [user?.role]);
+
+  useEffect(() => {
+    if (pathname === '/admin/chat') setChatUnread(0);
+  }, [pathname]);
 
   const navItems =
     user?.role === 'SUPER_ADMIN' ? superAdminNav :
@@ -205,7 +203,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="lg:hidden p-1.5 hover:bg-muted rounded-lg text-muted-foreground">
+          <button onClick={onClose} aria-label="Close sidebar" className="lg:hidden p-1.5 hover:bg-muted rounded-lg text-muted-foreground">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -263,7 +261,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                       <item.icon className="w-3.5 h-3.5" />
                     </div>
                     <span className="flex-1 text-left">{item.label}</span>
-                    <Lock className="w-3 h-3 text-purple-400 opacity-70" />
+                    <Lock aria-hidden="true" className="w-3 h-3 text-purple-400 opacity-70" />
                   </button>
                 );
               }
@@ -310,6 +308,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div className="px-3 py-3 border-t border-border/40 shrink-0 space-y-1">
           <button
             onClick={handleLogout}
+            aria-label="Sign out"
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/8 rounded-xl transition-all group"
           >
             <div className="w-7 h-7 rounded-lg bg-muted group-hover:bg-destructive/10 flex items-center justify-center shrink-0 transition-all">

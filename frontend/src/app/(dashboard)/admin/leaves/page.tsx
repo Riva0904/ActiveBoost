@@ -218,7 +218,7 @@ export default function AdminLeavesPage() {
                 Cancel
               </Button>
               <Button
-                variant={noteModal.action === 'approve' ? 'brand' : 'destructive'}
+                variant={noteModal.action === 'approve' ? 'brand' : 'danger'}
                 className="flex-1"
                 onClick={confirmAction}
                 loading={actioningId !== null}
