@@ -27,6 +27,9 @@ export class EmailService {
         user: this.fromEmail,
         pass: this.configService.get<string>('SMTP_PASS'),
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
 
