@@ -24,7 +24,7 @@ const ROLE_COLOR: Record<string, string> = {
 const RESET_DELAY = 4000;
 
 export default function CheckInPage() {
-  const { user, token } = useAuthStore();
+  const { user } = useAuthStore();
   const router = useRouter();
 
   const [phase, setPhase]           = useState<Phase>('loading');
@@ -35,18 +35,18 @@ export default function CheckInPage() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!token) {
+    if (!user) {
       router.replace('/login?redirect=/check-in');
       return;
     }
     const allowed = ['MEMBER', 'TRAINER', 'STAFF'];
-    if (user && !allowed.includes(user.role)) {
+    if (!allowed.includes(user.role)) {
       // Admin/super-admin should use the admin dashboard
       router.replace('/admin/attendance');
       return;
     }
     fetchStatus();
-  }, [token]);
+  }, [user]);
 
   // Auto-reset after success/error
   useEffect(() => {

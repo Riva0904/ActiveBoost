@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import { Suspense, useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Zap, Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -21,7 +21,7 @@ async function apiPost(path: string, body: object) {
   return data;
 }
 
-export default function VerifyEmailPage() {
+function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuth } = useAuthStore();
@@ -210,5 +210,13 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailForm />
+    </Suspense>
   );
 }

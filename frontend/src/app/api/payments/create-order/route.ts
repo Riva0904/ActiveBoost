@@ -9,7 +9,7 @@ const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3001';
  * The browser only receives the orderId and finalAmount.
  */
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('ab_token')?.value;
 
   if (!token) {

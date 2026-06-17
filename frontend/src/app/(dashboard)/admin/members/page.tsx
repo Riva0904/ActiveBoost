@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Users, Plus, Search, UserCheck, UserX, Phone, Mail, Crown, Calendar,
@@ -1129,7 +1129,7 @@ const TABS = [
 ] as const;
 type Tab = typeof TABS[number]['key'];
 
-export default function PeoplePage() {
+function PeoplePageInner() {
   const searchParams = useSearchParams();
   const initialTab = (['members','trainers','staff','plans'] as Tab[]).includes(searchParams.get('tab') as Tab)
     ? (searchParams.get('tab') as Tab)
@@ -1198,5 +1198,13 @@ export default function PeoplePage() {
         {tab === 'plans'    && <PlansTab />}
       </div>
     </div>
+  );
+}
+
+export default function PeoplePage() {
+  return (
+    <Suspense fallback={null}>
+      <PeoplePageInner />
+    </Suspense>
   );
 }

@@ -10,7 +10,7 @@ const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:3001';
  * adding a second layer of defense against tampered payment responses.
  */
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('ab_token')?.value;
 
   if (!token) {

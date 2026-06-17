@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function HomePage() {
   const router = useRouter();
-  const { user, token, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!token) {
+    if (!user) {
       // Clear any stale cookie so middleware doesn't redirect back here
       Cookies.remove('ab_token');
       router.replace('/login');
@@ -34,7 +34,7 @@ export default function HomePage() {
         logout();
         router.replace('/login');
     }
-  }, [hydrated, token, user, router, logout]);
+  }, [hydrated, user, router, logout]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

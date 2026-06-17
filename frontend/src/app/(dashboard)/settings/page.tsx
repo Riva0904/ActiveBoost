@@ -497,13 +497,13 @@ export default function SettingsPage() {
   const addCert    = () => { if (!newCert.trim()) return; setTrainerForm(f => ({ ...f, certifications: [...f.certifications, newCert.trim()] })); setNewCert(''); };
   const removeCert = (i: number) => setTrainerForm(f => ({ ...f, certifications: f.certifications.filter((_, idx) => idx !== i) }));
 
-  const tabs: { id: Tab; label: string; icon: React.ElementType; show: boolean }[] = [
+  const tabs = ([
     { id: 'profile',       label: 'Profile',         icon: User,      show: isAdmin },
     { id: 'trainer',       label: 'Trainer Profile',  icon: Dumbbell,  show: isTrainer },
     { id: 'security',      label: 'Security',         icon: Shield,    show: true },
     { id: 'notifications', label: 'Notifications',    icon: Bell,      show: !isAdmin },
     { id: 'gym',           label: 'Gym Settings',     icon: Building2, show: isAdmin },
-  ].filter(t => t.show);
+  ] as { id: Tab; label: string; icon: React.ElementType; show: boolean }[]).filter(t => t.show);
 
   const handleEditProfileClose = () => {
     setShowEditProfile(false);
