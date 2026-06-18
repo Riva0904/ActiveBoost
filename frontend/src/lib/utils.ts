@@ -9,16 +9,20 @@ export function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 }
 
-export function formatDate(date: string | Date, timezone = 'Asia/Kolkata') {
+// `timezone` is often a user's DB `timezone` field passed straight through, which is
+// `null` (not `undefined`) for most accounts — a default param only covers `undefined`,
+// so callers passing an explicit `null` would crash Intl.DateTimeFormat with
+// "Invalid time zone specified: null". Coalesce inside instead of relying on the default.
+export function formatDate(date: string | Date, timezone?: string | null) {
   return new Intl.DateTimeFormat('en-IN', {
-    day: 'numeric', month: 'short', year: 'numeric', timeZone: timezone,
+    day: 'numeric', month: 'short', year: 'numeric', timeZone: timezone ?? 'Asia/Kolkata',
   }).format(new Date(date));
 }
 
-export function formatDateTime(date: string | Date, timezone = 'Asia/Kolkata') {
+export function formatDateTime(date: string | Date, timezone?: string | null) {
   return new Intl.DateTimeFormat('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', timeZone: timezone,
+    hour: '2-digit', minute: '2-digit', timeZone: timezone ?? 'Asia/Kolkata',
   }).format(new Date(date));
 }
 
