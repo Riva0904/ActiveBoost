@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
 
 // withCredentials ensures the httpOnly auth cookie is sent on every request
 const api = axios.create({
@@ -124,6 +124,17 @@ export const attendanceApi = {
   manualCheckOut: (code: string) => api.post('/attendance/manual-check-out', { code }),
   getOccupancy: () => api.get('/attendance/occupancy'),
   getAnalytics: () => api.get('/attendance/analytics'),
+  // Attendance Intelligence V2
+  getStreak: () => api.get('/attendance/streak'),
+  getInactiveMembers: () => api.get('/attendance/inactive-members'),
+  getCalendar: (month: number, year: number) => api.get('/attendance/calendar', { params: { month, year } }),
+  getOccupancyTrend: () => api.get('/attendance/occupancy-trend'),
+  getLeaderboard: () => api.get('/attendance/leaderboard'),
+  getMyInsights: () => api.get('/attendance/my-insights'),
+  exportUrl: (format: 'csv' | 'excel' | 'pdf', filters?: Record<string, string>) => {
+    const params = new URLSearchParams(filters ?? {}).toString();
+    return `${API_BASE}/attendance/export/${format}${params ? `?${params}` : ''}`;
+  },
 };
 
 // Trainers

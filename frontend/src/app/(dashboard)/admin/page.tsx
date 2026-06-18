@@ -45,6 +45,8 @@ export default function AdminDashboard() {
   const [atRiskMembers, setAtRiskMembers] = useState<any[]>([]);
   const [winbackLoading, setWinbackLoading] = useState<string | null>(null);
   const [occupancy, setOccupancy] = useState<any>(null);
+  const [inactiveMembers, setInactiveMembers] = useState<any[]>([]);
+  const [occupancyTrend, setOccupancyTrend] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user?.gymId) return;
@@ -70,6 +72,8 @@ export default function AdminDashboard() {
     }).catch(() => {});
 
     attendanceApi.getOccupancy().then((o: any) => setOccupancy(o)).catch(() => {});
+    attendanceApi.getInactiveMembers().then((d: any) => setInactiveMembers(d ?? [])).catch(() => {});
+    attendanceApi.getOccupancyTrend().then((d: any) => setOccupancyTrend(d ?? [])).catch(() => {});
   }, [user?.gymId]);
 
   const sendWinback = async (memberId: string) => {
@@ -487,6 +491,72 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Inactive Members (severity-tagged absence alerts) */}
+      {inactiveMembers.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Inactive Members</p>
+                <p className="text-xs text-muted-foreground">No check-in for 5+ days</p>
+              </div>
+            </div>
+          </div>
+          <div className="divide-y divide-border">
+            {inactiveMembers.slice(0, 6).map((m: any) => (
+              <div key={m.memberId} className="flex items-center gap-3 px-6 py-3">
+                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
+                  {m.name?.charAt(0) ?? '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">{m.name}</p>
+                  <p className="text-xs text-muted-foreground">{m.daysAbsent} days absent</p>
+                </div>
+                <span className={cn(
+                  'text-xs font-bold px-2.5 py-1 rounded-full shrink-0',
+                  m.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
+                  m.severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                  m.severity === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700',
+                )}>{m.severity}</span>
+                <button
+                  disabled
+                  title="Coming soon — WhatsApp reminders"
+                  className="flex items-center gap-1.5 text-xs font-bold bg-muted text-muted-foreground px-3 py-1.5 rounded-lg cursor-not-allowed shrink-0"
+                >
+                  <Send className="w-3 h-3" /> Send Reminder
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Today's Occupancy Trend */}
+      {occupancyTrend.length > 0 && (
+        <div className="bg-card border border-border/60 rounded-2xl p-6 shadow-card">
+          <h3 className="font-bold text-lg mb-1">Today's Occupancy Trend</h3>
+          <p className="text-sm text-muted-foreground mb-5">Snapshots every 30 minutes</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={occupancyTrend} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+              <defs>
+                <linearGradient id="occTrendGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <XAxis dataKey="time" tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Area type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2.5} fill="url(#occTrendGrad)" dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>

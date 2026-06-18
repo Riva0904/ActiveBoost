@@ -76,6 +76,7 @@ export default function ReportsPage() {
   const [memberStats, setMemberStats]     = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [attendanceAnalytics, setAttendanceAnalytics] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
   // ── Financial state ───────────────────────────────────────────────────────
   const { info: subInfo, loading: subLoading } = useSubscription();
@@ -106,6 +107,7 @@ export default function ReportsPage() {
     }).catch(() => {}).finally(() => setAnalyticsLoading(false));
 
     attendanceApi.getAnalytics().then((a: any) => setAttendanceAnalytics(a)).catch(() => {});
+    attendanceApi.getLeaderboard().then((d: any) => setLeaderboard(d ?? [])).catch(() => {});
   }, []);
 
   // ── Fetch financial ───────────────────────────────────────────────────────
@@ -169,9 +171,19 @@ export default function ReportsPage() {
         </div>
 
         {tab === 'analytics' && (
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-bold text-sm transition-all">
-            <Download className="w-4 h-4" /> Export Report
-          </button>
+          <div className="flex items-center gap-2">
+            {(['csv', 'excel', 'pdf'] as const).map((format) => (
+              <a
+                key={format}
+                href={attendanceApi.exportUrl(format)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border bg-card hover:bg-muted font-bold text-sm transition-all"
+              >
+                <Download className="w-4 h-4" /> {format.toUpperCase()}
+              </a>
+            ))}
+          </div>
         )}
 
         {tab === 'financial' && !isFreePlan && (
@@ -365,9 +377,18 @@ export default function ReportsPage() {
                     <h3 className="font-bold text-lg">Peak Hours</h3>
                     <p className="text-sm text-muted-foreground">Busiest check-in hours, all time</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Avg Visit Duration</p>
-                    <p className="text-lg font-extrabold">{attendanceAnalytics.avgVisitDuration} min</p>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">Avg Visit Duration</p>
+                      <p className="text-lg font-extrabold">{attendanceAnalytics.avgVisitDuration} min</p>
+                    </div>
+                    {attendanceAnalytics.peakDay && (
+                      <div className="text-right border-l border-border pl-4">
+                        <p className="text-xs text-muted-foreground">Peak Day</p>
+                        <p className="text-lg font-extrabold">{attendanceAnalytics.peakDay}</p>
+                        <p className="text-[10px] text-muted-foreground">{attendanceAnalytics.peakDayVisits} visits</p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {attendanceAnalytics.peakHours.length === 0 ? (
@@ -437,6 +458,25 @@ export default function ReportsPage() {
                     <Area type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#monthlyTrendGrad)" dot={{ r: 3, fill: '#8b5cf6', strokeWidth: 0 }} />
                   </AreaChart>
                 </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Top 10 members leaderboard */}
+          {leaderboard.length > 0 && (
+            <div className="bg-card border border-border/60 rounded-2xl p-6 shadow-card">
+              <h3 className="font-bold text-lg mb-5">Top 10 Members — This Month</h3>
+              <div className="space-y-2.5">
+                {leaderboard.map((m: any) => (
+                  <div key={m.rank} className="flex items-center gap-3">
+                    <span className={cn(
+                      'w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0',
+                      m.rank === 1 ? 'bg-amber-100 text-amber-700' : m.rank === 2 ? 'bg-gray-200 text-gray-700' : m.rank === 3 ? 'bg-orange-100 text-orange-700' : 'bg-muted text-muted-foreground',
+                    )}>#{m.rank}</span>
+                    <span className="flex-1 text-sm font-semibold truncate">{m.memberName}</span>
+                    <span className="text-xs font-bold text-muted-foreground">{m.visits} visits</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}

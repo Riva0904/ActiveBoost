@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { QrCode, Activity, Calendar, Star, CreditCard, TrendingUp, Dumbbell, Utensils, ShoppingBag, ArrowRight, CheckCircle, Flame } from 'lucide-react';
+import { QrCode, Activity, Calendar, Star, CreditCard, TrendingUp, Dumbbell, Utensils, ShoppingBag, ArrowRight, CheckCircle, Flame, Trophy, Medal } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { attendanceApi, membershipsApi } from '@/lib/api';
 import { formatDate, daysUntil, getMembershipBadgeColor, formatDateTime } from '@/lib/utils';
@@ -18,6 +18,9 @@ export default function UserDashboard() {
   const [checkedInToday, setCheckedInToday] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [insights, setInsights] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [calendar, setCalendar] = useState<{ presentDates: string[]; attendanceRate: number } | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -30,6 +33,11 @@ export default function UserDashboard() {
       const today = new Date().toDateString();
       setCheckedInToday(records.some((r: any) => new Date(r.checkInTime).toDateString() === today));
     }).catch(() => setError(true)).finally(() => setLoading(false));
+
+    attendanceApi.getMyInsights().then((d: any) => setInsights(d)).catch(() => {});
+    attendanceApi.getLeaderboard().then((d: any) => setLeaderboard((d ?? []).slice(0, 3))).catch(() => {});
+    const now = new Date();
+    attendanceApi.getCalendar(now.getMonth() + 1, now.getFullYear()).then((d: any) => setCalendar(d)).catch(() => {});
   }, []);
 
   const handleCheckIn = async () => {
@@ -235,6 +243,95 @@ export default function UserDashboard() {
                   </div>
                 );
               })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* My Fitness Activity, Calendar, Leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Fitness insights */}
+        <div className="bg-card rounded-2xl border border-border/60 shadow-card p-6">
+          <h3 className="font-bold mb-4">My Fitness Activity</h3>
+          {insights ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-muted/50">
+                <p className="text-xs text-muted-foreground">Total Visits</p>
+                <p className="text-xl font-extrabold">{insights.totalVisits}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-orange-50 dark:bg-orange-900/15">
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Flame className="w-3 h-3 text-orange-500" /> Current Streak</p>
+                <p className="text-xl font-extrabold">{insights.currentStreak} <span className="text-xs font-semibold text-muted-foreground">days</span></p>
+              </div>
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15">
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-500" /> Best Streak</p>
+                <p className="text-xl font-extrabold">{insights.bestStreak} <span className="text-xs font-semibold text-muted-foreground">days</span></p>
+              </div>
+              <div className="p-3 rounded-xl bg-muted/50">
+                <p className="text-xs text-muted-foreground">Avg Duration</p>
+                <p className="text-xl font-extrabold">{insights.avgDuration}<span className="text-xs font-semibold text-muted-foreground"> min</span></p>
+              </div>
+              {insights.favoriteDay && (
+                <div className="p-3 rounded-xl bg-muted/50 col-span-2 flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Favorite Day · Hour</span>
+                  <span className="text-sm font-bold">{insights.favoriteDay} · {insights.favoriteHour}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="h-32 shimmer-bg rounded-xl" />
+          )}
+        </div>
+
+        {/* Attendance calendar */}
+        <div className="bg-card rounded-2xl border border-border/60 shadow-card p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold">Attendance Calendar</h3>
+            {calendar && <span className="text-xs font-bold text-primary">{calendar.attendanceRate}%</span>}
+          </div>
+          {calendar ? (
+            <div className="grid grid-cols-7 gap-1.5">
+              {Array.from({ length: new Date().getDate() }).map((_, i) => {
+                const day = i + 1;
+                const now = new Date();
+                const dateStr = new Date(now.getFullYear(), now.getMonth(), day).toISOString().split('T')[0];
+                const present = calendar.presentDates.includes(dateStr);
+                return (
+                  <div
+                    key={day}
+                    title={dateStr}
+                    className={cn(
+                      'aspect-square rounded-md flex items-center justify-center text-[10px] font-semibold',
+                      present ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground/50',
+                    )}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="h-32 shimmer-bg rounded-xl" />
+          )}
+        </div>
+
+        {/* Leaderboard */}
+        <div className="bg-card rounded-2xl border border-border/60 shadow-card p-6">
+          <h3 className="font-bold mb-4 flex items-center gap-2"><Medal className="w-4 h-4 text-amber-500" /> Top Members</h3>
+          {leaderboard.length === 0 ? (
+            <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">No visits this month yet</div>
+          ) : (
+            <div className="space-y-2.5">
+              {leaderboard.map((m: any) => (
+                <div key={m.rank} className="flex items-center gap-3">
+                  <span className={cn(
+                    'w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0',
+                    m.rank === 1 ? 'bg-amber-100 text-amber-700' : m.rank === 2 ? 'bg-gray-200 text-gray-700' : 'bg-orange-100 text-orange-700',
+                  )}>#{m.rank}</span>
+                  <span className="flex-1 text-sm font-semibold truncate">{m.memberName}</span>
+                  <span className="text-xs font-bold text-muted-foreground">{m.visits} visits</span>
+                </div>
+              ))}
             </div>
           )}
         </div>
