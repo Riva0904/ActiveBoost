@@ -51,7 +51,7 @@ export function Header({ onMenuClick }: HeaderProps) {
       <button
         onClick={onMenuClick}
         aria-label="Open menu"
-        className="lg:hidden p-2 hover:bg-muted rounded-xl text-muted-foreground transition-colors"
+        className="lg:hidden p-2 hover:bg-muted rounded-md text-muted-foreground transition-colors"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -62,7 +62,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             placeholder="Search members, gyms, reports…"
-            className="w-full h-10 pl-10 pr-4 text-sm bg-muted/60 border border-border/40 rounded-xl outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 focus:bg-card transition-all duration-200 placeholder:text-muted-foreground/60"
+            className="w-full h-10 pl-10 pr-4 text-sm bg-muted/60 border border-border/40 rounded-md outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/15 focus:bg-card transition-all duration-200 placeholder:text-muted-foreground/60"
           />
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/50 font-mono bg-muted px-1.5 py-0.5 rounded hidden md:block">⌘K</kbd>
         </div>
@@ -70,7 +70,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {/* Mobile search toggle */}
       <button
-        className="md:hidden p-2 hover:bg-muted rounded-xl text-muted-foreground"
+        className="md:hidden p-2 hover:bg-muted rounded-md text-muted-foreground"
         onClick={() => setShowSearch(!showSearch)}
         aria-label={showSearch ? 'Close search' : 'Open search'}
       >
@@ -83,7 +83,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="group w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+            className="group w-9 h-9 flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
           >
             {theme === 'dark'
               ? <Sun className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90 group-hover:text-amber-400" />
@@ -96,7 +96,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           href={`${rolePath}/notifications`}
           aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
           className={cn(
-            'relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-muted transition-all group',
+            'relative w-9 h-9 flex items-center justify-center rounded-md hover:bg-muted transition-all group',
             unreadCount > 0 ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -115,16 +115,16 @@ export function Header({ onMenuClick }: HeaderProps) {
             onClick={() => setShowUserMenu(!showUserMenu)}
             aria-label="User menu"
             aria-expanded={showUserMenu}
-            className="flex items-center gap-2.5 px-2 py-1.5 hover:bg-muted rounded-xl transition-all group"
+            className="flex items-center gap-2.5 px-2 py-1.5 hover:bg-muted rounded-md transition-all group"
           >
-            <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm shrink-0 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-200">
+            <div className="w-8 h-8 rounded-md overflow-hidden shadow-sm shrink-0 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-200">
               {user?.avatar
                 ? <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
                 : <div className="w-full h-full gradient-brand flex items-center justify-center text-white text-xs font-bold">{initials}</div>}
             </div>
             <div className="hidden md:block text-left">
               <p className="text-sm font-semibold leading-tight">{user?.firstName} {user?.lastName}</p>
-              <p className="text-[11px] text-muted-foreground capitalize leading-tight">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-bold leading-tight">
                 {user?.role?.toLowerCase().replace('_', ' ')}
               </p>
             </div>
@@ -135,22 +135,22 @@ export function Header({ onMenuClick }: HeaderProps) {
           {showUserMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-2xl shadow-lifted z-50 overflow-hidden animate-scale-in">
+              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-md shadow-lifted z-50 overflow-hidden animate-scale-in">
                 <div className="px-4 py-3 border-b border-border/50">
                   <p className="font-semibold text-sm">{user?.firstName} {user?.lastName}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <div className="p-1.5">
                   <button onClick={() => { setShowUserMenu(false); setShowEditProfile(true); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm hover:bg-muted transition-colors text-left">
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors text-left">
                     <UserCog className="w-4 h-4 text-muted-foreground" /> Edit Profile
                   </button>
                   <Link href={`${rolePath}/profile`} onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm hover:bg-muted transition-colors">
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-muted transition-colors">
                     <Settings className="w-4 h-4 text-muted-foreground" /> Settings
                   </Link>
                   <button onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/8 transition-colors">
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/8 transition-colors">
                     <LogOut className="w-4 h-4" /> Sign Out
                   </button>
                 </div>

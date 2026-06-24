@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 224 20% 12%;
+    --background: 36 14% 96%;
+    --foreground: 0 0% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 224 20% 12%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 20% 12%;
-    --primary: 22 100% 52%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 16 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 14% 30%;
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 52%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 220 14% 10%;
-    --destructive: 0 84% 60%;
+    --secondary: 30 10% 91%;
+    --secondary-foreground: 0 0% 12%;
+    --muted: 30 10% 91%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 30 10% 91%;
+    --accent-foreground: 0 0% 8%;
+    --destructive: 345 100% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 91%;
-    --input: 220 14% 91%;
-    --ring: 22 100% 52%;
-    --radius: 0.875rem;
+    --border: 30 10% 86%;
+    --input: 30 10% 86%;
+    --ring: 16 100% 50%;
+    --radius: 0.5rem;
     --sidebar-width: 272px;
     --header-height: 68px;
   }
 
   .dark {
-    --background: 224 20% 7%;
-    --foreground: 220 14% 96%;
-    --card: 224 20% 10%;
-    --card-foreground: 220 14% 96%;
-    --popover: 224 20% 10%;
-    --popover-foreground: 220 14% 96%;
-    --primary: 22 100% 52%;
+    --background: 240 4% 4%;
+    --foreground: 36 14% 96%;
+    --card: 240 5% 9%;
+    --card-foreground: 36 14% 96%;
+    --popover: 240 5% 9%;
+    --popover-foreground: 36 14% 96%;
+    --primary: 16 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 224 20% 14%;
-    --secondary-foreground: 220 14% 80%;
-    --muted: 224 20% 14%;
-    --muted-foreground: 220 10% 52%;
-    --accent: 224 20% 14%;
-    --accent-foreground: 220 14% 96%;
-    --destructive: 0 72% 51%;
+    --secondary: 240 5% 14%;
+    --secondary-foreground: 36 10% 80%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 30 5% 58%;
+    --accent: 240 5% 14%;
+    --accent-foreground: 36 14% 96%;
+    --destructive: 345 100% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 224 20% 16%;
-    --input: 224 20% 16%;
-    --ring: 22 100% 52%;
+    --border: 240 5% 17%;
+    --input: 240 5% 17%;
+    --ring: 16 100% 50%;
   }
 
   * {
@@ -77,7 +77,7 @@
 /* ─── Gradient Backgrounds ───────────────────────────────────────────────── */
 
 .gradient-brand {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 60%, #c2410c 100%);
+  background: linear-gradient(115deg, #FF4D00 0%, #FF0033 100%);
 }
 .gradient-purple {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
@@ -109,7 +109,7 @@
 
 /* ─── Shadow Utilities ───────────────────────────────────────────────────── */
 
-.shadow-brand  { box-shadow: 0 8px 32px rgba(249,115,22,.28), 0 2px 8px rgba(249,115,22,.16); }
+.shadow-brand  { box-shadow: 0 8px 32px rgba(255,77,0,.32), 0 2px 8px rgba(255,77,0,.18); }
 .shadow-purple { box-shadow: 0 8px 32px rgba(139,92,246,.28), 0 2px 8px rgba(139,92,246,.16); }
 .shadow-blue   { box-shadow: 0 8px 32px rgba(59,130,246,.28), 0 2px 8px rgba(59,130,246,.16); }
 .shadow-green  { box-shadow: 0 8px 32px rgba(16,185,129,.28), 0 2px 8px rgba(16,185,129,.16); }
@@ -122,7 +122,7 @@
 
 /* ─── Glow Effects ───────────────────────────────────────────────────────── */
 
-.glow-brand  { box-shadow: 0 0 30px rgba(249,115,22,.35), 0 0 60px rgba(249,115,22,.15); }
+.glow-brand  { box-shadow: 0 0 30px rgba(255,77,0,.4), 0 0 60px rgba(255,0,51,.18); }
 .glow-purple { box-shadow: 0 0 30px rgba(139,92,246,.35), 0 0 60px rgba(139,92,246,.15); }
 .glow-blue   { box-shadow: 0 0 30px rgba(59,130,246,.35),  0 0 60px rgba(59,130,246,.15); }
 .glow-green  { box-shadow: 0 0 30px rgba(16,185,129,.35),  0 0 60px rgba(16,185,129,.15); }
@@ -131,7 +131,7 @@
 /* ─── Text Gradients ─────────────────────────────────────────────────────── */
 
 .text-gradient-brand {
-  background: linear-gradient(135deg, #f97316, #ea580c, #c2410c);
+  background: linear-gradient(115deg, #FF4D00, #FF0033);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -316,8 +316,8 @@
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
-  50%       { box-shadow: 0 0 0 8px rgba(249,115,22,.18); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,0,0); }
+  50%       { box-shadow: 0 0 0 8px rgba(255,77,0,.2); }
 }
 .animate-slide-down  { animation: slide-down-anim  0.18s ease-out both; }
 .animate-bounce-in   { animation: bounce-in-anim   0.35s ease-out both; }
@@ -366,8 +366,8 @@
   to   { opacity: 1; transform: scale(1); }
 }
 @keyframes pulse-glow-brand {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
-  50%       { box-shadow: 0 0 20px 8px rgba(249,115,22,.22); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,0,0); }
+  50%       { box-shadow: 0 0 20px 8px rgba(255,77,0,.25); }
 }
 @keyframes gradient-x {
   0%, 100% { background-position: 0% 50%; }
@@ -470,9 +470,43 @@
 
 /* ─── Floating Label Input ───────────────────────────────────────────────── */
 .input-glow:focus {
-  box-shadow: 0 0 0 3px rgba(249,115,22,.15), 0 1px 3px rgba(249,115,22,.1);
-  border-color: rgba(249,115,22,.6) !important;
+  box-shadow: 0 0 0 3px rgba(255,77,0,.18), 0 1px 3px rgba(255,77,0,.12);
+  border-color: rgba(255,77,0,.65) !important;
 }
+
+/* ─── Angular / Diagonal Accents (bold-athletic shape language) ─────────── */
+
+/* Sharp diagonal cut across a hero panel — replaces blurred floating orbs */
+.diagonal-cut {
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+}
+.diagonal-cut-reverse {
+  clip-path: polygon(0 22%, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Sharp-cornered accent bar/slab — replaces soft glow orbs as a decorative block */
+.angular-accent {
+  position: absolute;
+  background: linear-gradient(115deg, #FF4D00 0%, #FF0033 100%);
+  clip-path: polygon(20% 0, 100% 0, 80% 100%, 0% 100%);
+  pointer-events: none;
+}
+
+/* "Track lane" / performance-line motif — subtle diagonal stripes behind hero sections */
+.lane-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: repeating-linear-gradient(
+    115deg,
+    rgba(255,255,255,1) 0px,
+    rgba(255,255,255,1) 1.5px,
+    transparent 1.5px,
+    transparent 28px
+  );
+}
+.dark .lane-lines { opacity: 0.05; }
 
 /* ─── Decorative grid overlays ───────────────────────────────────────────── */
 .auth-hero-grid {
@@ -514,7 +548,7 @@
 }
 .form-input:focus {
   border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px rgba(249,115,22,.12);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.15);
 }
 .form-input.error {
   border-color: hsl(var(--destructive));
@@ -897,9 +931,9 @@
   top: 6px;
   bottom: 6px;
   width: 3.5px;
-  border-radius: 0 4px 4px 0;
-  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
-  box-shadow: 0 0 8px rgba(249,115,22,.5);
+  border-radius: 0;
+  background: linear-gradient(180deg, #FF4D00 0%, #FF0033 100%);
+  box-shadow: 0 0 8px rgba(255,77,0,.6);
 }
 
 /* ─── Gradient Animated Border ───────────────────────────────────────────── */
@@ -986,8 +1020,8 @@
 
 /* ─── Logo Pulse Ring ────────────────────────────────────────────────────── */
 @keyframes logo-pulse {
-  0%,100% { box-shadow: 0 0 0 0   rgba(249,115,22,.5), 0 4px 16px rgba(249,115,22,.35); }
-  50%      { box-shadow: 0 0 0 6px rgba(249,115,22,.0), 0 4px 16px rgba(249,115,22,.35); }
+  0%,100% { box-shadow: 0 0 0 0   rgba(255,77,0,.5), 0 4px 16px rgba(255,77,0,.35); }
+  50%      { box-shadow: 0 0 0 6px rgba(255,77,0,.0), 0 4px 16px rgba(255,77,0,.35); }
 }
 .logo-pulse { animation: logo-pulse 3s ease-in-out infinite; }
 

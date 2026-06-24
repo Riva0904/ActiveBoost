@@ -190,34 +190,30 @@ export default function AdminDashboard() {
       <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
 
       {/* Hero header */}
-      <div className="relative overflow-hidden rounded-2xl gradient-brand p-7 shadow-brand hero-shimmer">
-        {/* Layered depth overlays */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/25 via-transparent to-orange-900/20" />
-        {/* Floating orbs */}
-        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-white/10 blur-3xl -translate-y-1/2 translate-x-1/3 animate-float-subtle" />
-        <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full bg-amber-300/10 blur-2xl translate-y-1/2 animate-float-subtle" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-1/2 right-1/4 w-32 h-32 rounded-full bg-white/5 blur-xl animate-rotate-slow" />
-        {/* Decorative grid */}
-        <div className="absolute inset-0 auth-hero-grid" />
+      <div className="relative overflow-hidden rounded-md bg-[#0A0A0B] p-7 shadow-brand">
+        {/* Angular accent — replaces blurred floating orbs */}
+        <div className="absolute -top-16 -right-16 w-80 h-80 angular-accent opacity-80" />
+        <div className="diagonal-cut absolute inset-0 bg-gradient-to-br from-[#FF4D00]/20 via-transparent to-transparent" />
+        <div className="lane-lines" />
 
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 live-dot" />
-              <span className="text-white/75 text-sm font-medium tracking-wide">Live Dashboard</span>
+              <div className="w-2 h-2 bg-[#FF4D00] live-dot" />
+              <span className="text-white/70 text-sm font-bold uppercase tracking-wide">Live Dashboard</span>
             </div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
-              Good morning, {user?.firstName}! 👋
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase">
+              Good morning, {user?.firstName}
             </h1>
-            <p className="text-white/65 mt-1.5 text-sm">Here's what's happening at your gym today</p>
+            <p className="text-white/60 mt-1.5 text-sm">Here's what's happening at your gym today</p>
           </div>
           <div className="flex gap-2.5">
             <Link href="/admin/attendance"
-              className="flex items-center gap-2 bg-white text-orange-600 font-bold px-5 py-2.5 rounded-xl hover:bg-orange-50 hover:scale-[1.03] active:scale-[0.97] transition-all text-sm shadow-lg">
+              className="flex items-center gap-2 bg-white text-[#0A0A0B] font-black uppercase tracking-wide px-5 py-2.5 rounded-md hover:bg-white/90 active:scale-[0.97] transition-all text-sm shadow-lg">
               <QrCode className="w-4 h-4" /> Scan QR
             </Link>
             <Link href="/admin/members"
-              className="flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white font-bold px-5 py-2.5 rounded-xl hover:bg-white/30 hover:scale-[1.03] active:scale-[0.97] transition-all text-sm border border-white/30">
+              className="flex items-center gap-2 bg-white/10 text-white font-black uppercase tracking-wide px-5 py-2.5 rounded-md hover:bg-white/20 active:scale-[0.97] transition-all text-sm border border-white/20">
               <UserPlus className="w-4 h-4" /> Add Member
             </Link>
           </div>
@@ -452,26 +448,29 @@ export default function AdminDashboard() {
 
       {/* At-Risk Members Widget */}
       {atRiskMembers.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="bg-card border border-border rounded-md overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-md bg-orange-100 flex items-center justify-center">
                 <HeartHandshake className="w-4 h-4 text-orange-600" />
               </div>
               <div>
-                <p className="font-bold text-sm">At-Risk Members</p>
+                <p className="font-black text-sm uppercase tracking-wide">At-Risk Members</p>
                 <p className="text-xs text-muted-foreground">Active members who haven't checked in for 14+ days</p>
               </div>
             </div>
-            <Link href="/admin/at-risk" className="text-xs font-semibold text-brand hover:underline flex items-center gap-1">
+            <Link href="/admin/at-risk" className="text-xs font-bold uppercase tracking-wide text-brand hover:underline flex items-center gap-1">
               View All <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="divide-y divide-border">
             {atRiskMembers.map((m: any) => (
               <div key={m.memberId} className="flex items-center gap-3 px-6 py-3">
-                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {m.firstName?.charAt(0) ?? '?'}
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
+                    {m.firstName?.charAt(0) ?? '?'}
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#FF0033] border-2 border-card" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{m.firstName} {m.lastName}</p>
@@ -483,7 +482,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={() => sendWinback(m.memberId)}
                   disabled={winbackLoading === m.memberId}
-                  className="flex items-center gap-1.5 text-xs font-bold bg-orange-100 text-orange-700 hover:bg-orange-200 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide bg-orange-100 text-orange-700 hover:bg-orange-200 px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
                 >
                   {winbackLoading === m.memberId ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
                   Win-back
@@ -496,14 +495,14 @@ export default function AdminDashboard() {
 
       {/* Inactive Members (severity-tagged absence alerts) */}
       {inactiveMembers.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="bg-card border border-border rounded-md overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-md bg-rose-100 flex items-center justify-center">
                 <AlertTriangle className="w-4 h-4 text-rose-600" />
               </div>
               <div>
-                <p className="font-bold text-sm">Inactive Members</p>
+                <p className="font-black text-sm uppercase tracking-wide">Inactive Members</p>
                 <p className="text-xs text-muted-foreground">No check-in for 5+ days</p>
               </div>
             </div>
@@ -511,15 +510,23 @@ export default function AdminDashboard() {
           <div className="divide-y divide-border">
             {inactiveMembers.slice(0, 6).map((m: any) => (
               <div key={m.memberId} className="flex items-center gap-3 px-6 py-3">
-                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {m.name?.charAt(0) ?? '?'}
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
+                    {m.name?.charAt(0) ?? '?'}
+                  </div>
+                  <div className={cn(
+                    'absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card',
+                    m.severity === 'CRITICAL' ? 'bg-[#FF0033]' :
+                    m.severity === 'HIGH' ? 'bg-orange-500' :
+                    m.severity === 'MEDIUM' ? 'bg-amber-500' : 'bg-blue-500',
+                  )} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold truncate">{m.name}</p>
                   <p className="text-xs text-muted-foreground">{m.daysAbsent} days absent</p>
                 </div>
                 <span className={cn(
-                  'text-xs font-bold px-2.5 py-1 rounded-full shrink-0',
+                  'text-xs font-black uppercase tracking-wide px-2.5 py-1 rounded-sm shrink-0',
                   m.severity === 'CRITICAL' ? 'bg-rose-100 text-rose-700' :
                   m.severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
                   m.severity === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700',
@@ -527,7 +534,7 @@ export default function AdminDashboard() {
                 <button
                   disabled
                   title="Coming soon — WhatsApp reminders"
-                  className="flex items-center gap-1.5 text-xs font-bold bg-muted text-muted-foreground px-3 py-1.5 rounded-lg cursor-not-allowed shrink-0"
+                  className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide bg-muted text-muted-foreground px-3 py-1.5 rounded-md cursor-not-allowed shrink-0"
                 >
                   <Send className="w-3 h-3" /> Send Reminder
                 </button>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -191,14 +192,14 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div className="flex items-center justify-between px-5 h-[var(--header-height)] border-b border-border/60 shrink-0">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-9 h-9 gradient-brand rounded-xl flex items-center justify-center logo-pulse">
+              <div className="w-9 h-9 gradient-brand rounded-md flex items-center justify-center logo-pulse">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-card" />
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight">ActiveFit</span>
-              <div className={cn('inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-md ml-1', role.badgeColor)}>
+              <span className="font-black text-base tracking-tighter uppercase">ActiveFit</span>
+              <div className={cn('inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-sm ml-1 uppercase tracking-wide', role.badgeColor)}>
                 {role.badge}
               </div>
             </div>
@@ -211,7 +212,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* User quick info */}
         <div className="px-4 py-3 border-b border-border/40">
           <div className="sidebar-user-card">
-            <div className="w-9 h-9 rounded-xl shrink-0 shadow-sm overflow-hidden">
+            <div className="w-9 h-9 rounded-md shrink-0 shadow-sm overflow-hidden">
               {user?.avatar ? (
                 <img src={user.avatar} alt={`${user.firstName} ${user.lastName}`} className="w-full h-full object-cover" />
               ) : (
@@ -244,64 +245,74 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto scrollbar-hide px-3 py-3">
-          <div className="space-y-0.5 nav-stagger">
-            {navItems.map((item) => {
-              const peopleHrefs = ['/admin/members', '/admin/trainers', '/admin/staffs'];
-              const isActive = pathname === item.href || (item.href === '/admin/members' && peopleHrefs.includes(pathname));
-              const isLocked = isFreePlan && item.pro;
+          <LayoutGroup>
+            <div className="space-y-0.5 nav-stagger">
+              {navItems.map((item) => {
+                const peopleHrefs = ['/admin/members', '/admin/trainers', '/admin/staffs'];
+                const isActive = pathname === item.href || (item.href === '/admin/members' && peopleHrefs.includes(pathname));
+                const isLocked = isFreePlan && item.pro;
 
-              if (isLocked) {
+                if (isLocked) {
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => handleProClick(item.label)}
+                      className="w-full group flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-bold uppercase tracking-wide transition-all duration-200 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40 animate-slide-up"
+                    >
+                      <div className={cn('w-7 h-7 rounded-md flex items-center justify-center shrink-0 bg-muted/60 opacity-40', item.color)}>
+                        <item.icon className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <Lock aria-hidden="true" className="w-3 h-3 text-purple-400 opacity-70" />
+                    </button>
+                  );
+                }
+
                 return (
-                  <button
+                  <Link
                     key={item.href}
-                    onClick={() => handleProClick(item.label)}
-                    className="w-full group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/40 animate-slide-up"
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn(
+                      'relative group flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-bold uppercase tracking-wide transition-all duration-200 animate-slide-up overflow-hidden',
+                      isActive
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+                    )}
                   >
-                    <div className={cn('w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-muted/60 opacity-40', item.color)}>
-                      <item.icon className="w-3.5 h-3.5" />
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-active-pill"
+                        transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+                        className="absolute inset-0 bg-gradient-to-r from-primary/[0.14] via-primary/[0.06] to-transparent"
+                        style={{ borderLeft: '3px solid #FF4D00' }}
+                      />
+                    )}
+                    <div className={cn(
+                      'relative z-10 w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-all duration-200',
+                      isActive
+                        ? cn(colorBgMap[item.color ?? ''] ?? 'bg-primary/10', item.color, 'shadow-sm')
+                        : cn('bg-muted group-hover:bg-background/80', item.color),
+                    )}>
+                      <item.icon className={cn('w-3.5 h-3.5 transition-transform duration-200', isActive && 'scale-110')} />
                     </div>
-                    <span className="flex-1 text-left">{item.label}</span>
-                    <Lock aria-hidden="true" className="w-3 h-3 text-purple-400 opacity-70" />
-                  </button>
+                    <span className="relative z-10 flex-1">{item.label}</span>
+                    {isActive && <ChevronRight className="relative z-10 w-3 h-3 opacity-50 -translate-x-0.5" />}
+                    {item.badge && (
+                      <span className="relative z-10 text-[10px] font-bold bg-destructive text-white px-1.5 py-0.5 rounded-sm animate-badge-pop">
+                        {item.badge}
+                      </span>
+                    )}
+                    {item.label === 'Chat' && chatUnread > 0 && !isActive && (
+                      <span className="relative z-10 text-[10px] font-bold bg-[#FF0033] text-white min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-badge-pop">
+                        {chatUnread > 9 ? '9+' : chatUnread}
+                      </span>
+                    )}
+                  </Link>
                 );
-              }
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onClose}
-                  className={cn(
-                    'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 animate-slide-up',
-                    isActive
-                      ? 'nav-item-active bg-gradient-to-r from-primary/[0.13] via-primary/[0.06] to-transparent text-primary font-semibold'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
-                  )}
-                >
-                  <div className={cn(
-                    'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200',
-                    isActive
-                      ? cn(colorBgMap[item.color ?? ''] ?? 'bg-primary/10', item.color, 'shadow-sm')
-                      : cn('bg-muted group-hover:bg-background/80', item.color),
-                  )}>
-                    <item.icon className={cn('w-3.5 h-3.5 transition-transform duration-200', isActive && 'scale-110')} />
-                  </div>
-                  <span className="flex-1">{item.label}</span>
-                  {isActive && <ChevronRight className="w-3 h-3 opacity-50 -translate-x-0.5" />}
-                  {item.badge && (
-                    <span className="text-[10px] font-bold bg-destructive text-white px-1.5 py-0.5 rounded-full animate-badge-pop">
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.label === 'Chat' && chatUnread > 0 && !isActive && (
-                    <span className="text-[10px] font-bold bg-red-500 text-white min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-badge-pop">
-                      {chatUnread > 9 ? '9+' : chatUnread}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
+              })}
+            </div>
+          </LayoutGroup>
         </nav>
 
         {/* Footer */}
@@ -309,9 +320,9 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <button
             onClick={handleLogout}
             aria-label="Sign out"
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/8 rounded-xl transition-all group"
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold uppercase tracking-wide text-muted-foreground hover:text-destructive hover:bg-destructive/8 rounded-md transition-all group"
           >
-            <div className="w-7 h-7 rounded-lg bg-muted group-hover:bg-destructive/10 flex items-center justify-center shrink-0 transition-all">
+            <div className="w-7 h-7 rounded-md bg-muted group-hover:bg-destructive/10 flex items-center justify-center shrink-0 transition-all">
               <LogOut className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </div>
             Sign Out

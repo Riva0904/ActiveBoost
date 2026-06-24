@@ -3,6 +3,7 @@
 import { cn, formatCurrency } from '@/lib/utils';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface StatsCardProps {
   title: string;
@@ -16,14 +17,16 @@ interface StatsCardProps {
   className?: string;
 }
 
-const gradientConfig: Record<string, { cls: string; orb: string; hoverBorder: string }> = {
-  blue:   { cls: 'gradient-blue shadow-blue',     orb: '#3b82f6', hoverBorder: 'hover:border-blue-200 dark:hover:border-blue-800/50' },
-  green:  { cls: 'gradient-green shadow-green',   orb: '#10b981', hoverBorder: 'hover:border-green-200 dark:hover:border-green-800/50' },
-  orange: { cls: 'gradient-brand shadow-brand',   orb: '#f97316', hoverBorder: 'hover:border-orange-200 dark:hover:border-orange-800/50' },
-  purple: { cls: 'gradient-purple shadow-purple', orb: '#8b5cf6', hoverBorder: 'hover:border-purple-200 dark:hover:border-purple-800/50' },
-  rose:   { cls: 'gradient-rose shadow-rose',     orb: '#f43f5e', hoverBorder: 'hover:border-rose-200 dark:hover:border-rose-800/50' },
-  teal:   { cls: 'gradient-teal shadow-teal',     orb: '#14b8a6', hoverBorder: 'hover:border-teal-200 dark:hover:border-teal-800/50' },
-  indigo: { cls: 'gradient-indigo shadow-violet', orb: '#6366f1', hoverBorder: 'hover:border-indigo-200 dark:hover:border-indigo-800/50' },
+// Solid accent (not a gradient fill) — icon chip + left border color. Key names kept
+// stable since other pages already pass gradient="blue"/"purple"/etc.
+const gradientConfig: Record<string, { accent: string }> = {
+  blue:   { accent: '#00D9FF' },
+  green:  { accent: '#10b981' },
+  orange: { accent: '#FF4D00' },
+  purple: { accent: '#8b5cf6' },
+  rose:   { accent: '#FF0033' },
+  teal:   { accent: '#14b8a6' },
+  indigo: { accent: '#6366f1' },
 };
 
 function useCountUp(target: number, enabled: boolean, duration = 1100) {
@@ -66,26 +69,21 @@ export function StatsCard({
     : String(value);
 
   return (
-    <div className={cn('stats-card group', config.hoverBorder, className)}>
-      {/* Beam sweep element (CSS handles the animation via .card-beam::after) */}
-      <div className="card-beam" />
-
-      {/* Decorative background orb — grows on hover */}
-      <div
-        className="absolute -top-12 -right-12 w-40 h-40 rounded-full pointer-events-none transition-all duration-700 ease-out opacity-[0.065] group-hover:opacity-[0.16] group-hover:scale-110"
-        style={{ background: config.orb }}
-      />
-
-      {/* Second smaller orb at bottom-left for depth */}
-      <div
-        className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full pointer-events-none opacity-[0.04] group-hover:opacity-[0.09] transition-all duration-700"
-        style={{ background: config.orb }}
-      />
-
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      style={{ borderLeft: `3px solid ${config.accent}` }}
+      className={cn('stats-card group', className)}
+    >
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <div className={cn('stats-card-icon transition-all duration-300', config.cls)}>
-            <Icon className="w-5 h-5 text-white" />
+          <div
+            className="w-11 h-11 rounded-md flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105"
+            style={{ backgroundColor: `${config.accent}1A` }}
+          >
+            <Icon className="w-5 h-5" style={{ color: config.accent }} />
           </div>
           {trend && (
             <span className={cn('trend-badge', isUp ? 'trend-up' : 'trend-down')}>
@@ -97,10 +95,10 @@ export function StatsCard({
           )}
         </div>
 
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
 
         {/* Animated counter value */}
-        <p className="stat-number text-3xl text-foreground mt-1 animate-number-pop tabular-nums">
+        <p className="stat-number text-3xl font-black text-foreground mt-1 tabular-nums">
           {displayValue}
         </p>
 
@@ -110,7 +108,7 @@ export function StatsCard({
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
