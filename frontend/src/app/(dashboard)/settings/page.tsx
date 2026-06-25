@@ -5,7 +5,7 @@ import {
   User, Lock, Dumbbell, Camera, Save, Eye, EyeOff,
   CheckCircle, AlertCircle, Loader2, X, Plus, Upload,
   ZoomIn, ZoomOut, RotateCcw, ChevronDown, Globe,
-  MapPin, Phone, Sparkles, Shield, Pencil, Bell, Building2, Send,
+  MapPin, Phone, Sparkles, Shield, Pencil, Bell, Building2, Send, CreditCard,
 } from 'lucide-react';
 import { usersApi, trainersApi, authApi, gymsApi, renewalRemindersApi, chatApi } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
@@ -371,8 +371,9 @@ type Tab = 'profile' | 'trainer' | 'security' | 'gym' | 'notifications';
 export default function SettingsPage() {
   const { user, updateUser } = useAuthStore();
   const isTrainer = user?.role === 'TRAINER';
+  const isStaff = user?.role === 'STAFF';
   const isAdmin = user?.role === 'GYM_ADMIN';
-  const isMember = !isTrainer && !isAdmin;
+  const isMember = !isTrainer && !isAdmin && !isStaff;
 
   const [tab,             setTab]             = useState<Tab>(isAdmin ? 'profile' : 'security');
   const [saving,          setSaving]          = useState(false);
@@ -384,6 +385,7 @@ export default function SettingsPage() {
     firstName: '', lastName: '', phoneCode: 'IN', phone: '',
     emergencyCode: 'IN', emergencyContact: '', gender: '', dateOfBirth: '',
     country: 'India', address: '', state: '', city: '', pincode: '', avatar: '',
+    payoutUpiVpa: '',
   });
 
   const [trainerForm, setTrainerForm] = useState({
@@ -395,6 +397,8 @@ export default function SettingsPage() {
   const [pwForm,  setPwForm]  = useState({ current: '', newPw: '', confirm: '' });
   const [showPw,  setShowPw]  = useState({ current: false, newPw: false, confirm: false });
   const [gymData, setGymData] = useState<any>(null);
+  const [payoutForm, setPayoutForm] = useState({ upiVpa: '', payoutAccountHolder: '', payoutBankAccountNumber: '', payoutBankIfsc: '', payoutPhone: '' });
+  const [payoutSaving, setPayoutSaving] = useState(false);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [reminderSaving, setReminderSaving] = useState(false);
   const [reminderPreview, setReminderPreview] = useState<any[]>([]);
@@ -410,6 +414,7 @@ export default function SettingsPage() {
         gender: data.gender ?? '', dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split('T')[0] : '',
         address: data.address ?? '', state: data.state ?? '', city: data.city ?? '',
         pincode: data.pincode ?? '', avatar: data.avatar ?? '',
+        payoutUpiVpa: data.payoutUpiVpa ?? '',
       }));
       if (isTrainer && data.trainer) {
         setTrainerForm({
@@ -427,8 +432,32 @@ export default function SettingsPage() {
     gymsApi.getOne(user.gymId).then((data: any) => {
       setGymData(data);
       setRemindersEnabled(data.renewalRemindersEnabled ?? true);
+      setPayoutForm({
+        upiVpa: data.payoutUpiVpa ?? '',
+        payoutAccountHolder: data.payoutAccountHolder ?? '',
+        payoutBankAccountNumber: data.payoutBankAccountNumber ?? '',
+        payoutBankIfsc: data.payoutBankIfsc ?? '',
+        payoutPhone: data.payoutPhone ?? '',
+      });
     }).catch(() => {});
   }, [isAdmin, user?.gymId]);
+
+  const savePayoutDetails = async () => {
+    if (!user?.gymId) return;
+    if (!payoutForm.upiVpa.trim()) { toast.error('UPI ID is required'); return; }
+    setPayoutSaving(true);
+    try {
+      await gymsApi.update(user.gymId, {
+        payoutUpiVpa: payoutForm.upiVpa.trim(),
+        payoutAccountHolder: payoutForm.payoutAccountHolder.trim() || null,
+        payoutBankAccountNumber: payoutForm.payoutBankAccountNumber.trim() || null,
+        payoutBankIfsc: payoutForm.payoutBankIfsc.trim() || null,
+        payoutPhone: payoutForm.payoutPhone.trim() || null,
+      });
+      toast.success('Payout details saved');
+    } catch { toast.error('Failed to save payout details'); }
+    finally { setPayoutSaving(false); }
+  };
 
   const toggleReminders = async (enabled: boolean) => {
     if (!user?.gymId) return;
@@ -470,6 +499,7 @@ export default function SettingsPage() {
         gender: profile.gender || undefined, address: profile.address || undefined,
         city: profile.city || undefined, state: profile.state || undefined,
         pincode: profile.pincode || undefined, avatar: profile.avatar || undefined,
+        payoutUpiVpa: (isTrainer || isStaff) ? (profile.payoutUpiVpa.trim() || undefined) : undefined,
       };
       if (profile.dateOfBirth) payload.dateOfBirth = new Date(profile.dateOfBirth).toISOString();
       const updated: any = await usersApi.updateMe(payload);
@@ -939,6 +969,51 @@ export default function SettingsPage() {
                   {reminderPreview.length === 0 && !previewLoading && reminderPreview !== null && (
                     <p className="text-xs text-muted-foreground italic">Click "Preview" to see who would receive reminders today.</p>
                   )}
+                </div>
+
+                {/* UPI Payout Details Card */}
+                <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-brand" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm">UPI Payout Details</h3>
+                      <p className="text-xs text-muted-foreground">Members pay membership/plan/supplement amounts straight to this UPI ID. No gateway, no fees — you confirm receipt manually.</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">UPI ID (VPA) *</label>
+                      <input value={payoutForm.upiVpa} onChange={e => setPayoutForm(p => ({ ...p, upiVpa: e.target.value }))}
+                        placeholder="yourgym@upi" className="w-full px-3 py-2.5 text-sm bg-muted/50 border border-border/60 rounded-xl outline-none focus:border-primary/40 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Account Holder Name</label>
+                      <input value={payoutForm.payoutAccountHolder} onChange={e => setPayoutForm(p => ({ ...p, payoutAccountHolder: e.target.value }))}
+                        placeholder="As per bank records" className="w-full px-3 py-2.5 text-sm bg-muted/50 border border-border/60 rounded-xl outline-none focus:border-primary/40 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Bank Account Number</label>
+                      <input value={payoutForm.payoutBankAccountNumber} onChange={e => setPayoutForm(p => ({ ...p, payoutBankAccountNumber: e.target.value }))}
+                        placeholder="Optional, for your records" className="w-full px-3 py-2.5 text-sm bg-muted/50 border border-border/60 rounded-xl outline-none focus:border-primary/40 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">IFSC Code</label>
+                      <input value={payoutForm.payoutBankIfsc} onChange={e => setPayoutForm(p => ({ ...p, payoutBankIfsc: e.target.value.toUpperCase() }))}
+                        placeholder="Optional, for your records" className="w-full px-3 py-2.5 text-sm bg-muted/50 border border-border/60 rounded-xl outline-none focus:border-primary/40 transition-all" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Phone (UPI-linked)</label>
+                      <input value={payoutForm.payoutPhone} onChange={e => setPayoutForm(p => ({ ...p, payoutPhone: e.target.value }))}
+                        placeholder="Optional" className="w-full px-3 py-2.5 text-sm bg-muted/50 border border-border/60 rounded-xl outline-none focus:border-primary/40 transition-all" />
+                    </div>
+                  </div>
+                  <button onClick={savePayoutDetails} disabled={payoutSaving}
+                    className="flex items-center gap-2 gradient-brand text-white rounded-xl px-4 py-2 text-sm font-bold hover:opacity-90 transition-all disabled:opacity-60">
+                    {payoutSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    {payoutSaving ? 'Saving…' : 'Save / Change Bank'}
+                  </button>
                 </div>
               </div>
             )}

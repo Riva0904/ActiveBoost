@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ShoppingBag, Plus, Minus, ShoppingCart, Star, Search, Package, Zap, CheckCircle, Tag } from 'lucide-react';
 import { supplementsApi, paymentsApi } from '@/lib/api';
+import { ManualUpiModal } from '@/components/shared/ManualUpiModal';
 import { formatCurrency } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,8 @@ export default function UserSupplementsPage() {
   const [ordering, setOrdering] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [upiModal, setUpiModal] = useState<any>(null);
+  const [orderingUpi, setOrderingUpi] = useState(false);
 
   useEffect(() => {
     supplementsApi.getAll({ limit: 24 })
@@ -78,6 +81,17 @@ export default function UserSupplementsPage() {
     setOrdering(false);
   };
 
+  const placeOrderUpi = async () => {
+    if (cartCount === 0) return;
+    setOrderingUpi(true);
+    try {
+      const items = Object.entries(cart).map(([supplementId, quantity]) => ({ supplementId, quantity }));
+      const orderRes: any = await supplementsApi.createCheckout(items, true);
+      setUpiModal({ paymentId: orderRes.paymentId, amount: orderRes.amount, vpa: orderRes.vpa, payeeName: orderRes.payeeName, description: `Supplement order — ${cartCount} item${cartCount > 1 ? 's' : ''}` });
+    } catch (e: any) { toast.error(e.response?.data?.message ?? 'Checkout failed'); }
+    setOrderingUpi(false);
+  };
+
   return (
     <div className="space-y-6 animate-slide-up">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -86,14 +100,28 @@ export default function UserSupplementsPage() {
           <p className="text-muted-foreground mt-0.5">Quality nutrition for your fitness journey</p>
         </div>
         {cartCount > 0 && (
-          <button onClick={placeOrder} disabled={ordering}
-            className="relative flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-bold text-sm shadow-brand hover:opacity-90 transition-all disabled:opacity-70">
-            <ShoppingCart className="w-4 h-4" />
-            Order {cartCount} item{cartCount > 1 ? 's' : ''} · {formatCurrency(cartTotal)}
-            <span className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 rounded-full text-[10px] font-extrabold flex items-center justify-center">{cartCount}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={placeOrderUpi} disabled={orderingUpi}
+              className="px-4 py-2.5 rounded-xl border border-border hover:bg-muted text-sm font-bold disabled:opacity-70">
+              Pay via UPI
+            </button>
+            <button onClick={placeOrder} disabled={ordering}
+              className="relative flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-brand text-white font-bold text-sm shadow-brand hover:opacity-90 transition-all disabled:opacity-70">
+              <ShoppingCart className="w-4 h-4" />
+              Order {cartCount} item{cartCount > 1 ? 's' : ''} · {formatCurrency(cartTotal)}
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 rounded-full text-[10px] font-extrabold flex items-center justify-center">{cartCount}</span>
+            </button>
+          </div>
         )}
       </div>
+
+      {upiModal && (
+        <ManualUpiModal
+          {...upiModal}
+          onClose={() => setUpiModal(null)}
+          onMarkedPaid={() => setCart({})}
+        />
+      )}
 
       {/* Search & Filters */}
       <div className="flex items-center gap-3 flex-wrap">

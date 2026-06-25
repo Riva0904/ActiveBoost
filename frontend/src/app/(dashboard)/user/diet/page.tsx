@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Utensils, Zap, Plus, Flame, Apple, Clock, ShoppingBag, CreditCard, CheckCircle } from 'lucide-react';
 import { dietPlansApi, paymentsApi } from '@/lib/api';
+import { ManualUpiModal } from '@/components/shared/ManualUpiModal';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 
@@ -21,6 +22,8 @@ export default function DietPage() {
   const [activePlan, setActivePlan] = useState<any | null>(null);
   const [packages, setPackages] = useState<any[]>([]);
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [upiModal, setUpiModal] = useState<any>(null);
+  const [buyingUpiId, setBuyingUpiId] = useState<string | null>(null);
 
   useEffect(() => {
     dietPlansApi.getMyPlans()
@@ -55,6 +58,15 @@ export default function DietPage() {
       } else { toast.error('Razorpay not loaded'); }
     } catch (e: any) { toast.error(e.response?.data?.message ?? 'Purchase failed'); }
     setBuyingId(null);
+  };
+
+  const buyPackageUpi = async (pkg: any) => {
+    setBuyingUpiId(pkg.id);
+    try {
+      const orderRes: any = await dietPlansApi.buyPackage(pkg.id, true);
+      setUpiModal({ paymentId: orderRes.paymentId, amount: orderRes.amount, vpa: orderRes.vpa, payeeName: orderRes.payeeName, description: `${pkg.name} — ${pkg.durationDays ?? 30} days` });
+    } catch (e: any) { toast.error(e.response?.data?.message ?? 'Purchase failed'); }
+    setBuyingUpiId(null);
   };
 
   const generateAi = async () => {
@@ -244,11 +256,26 @@ export default function DietPage() {
                     {buyingId === pkg.id ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/> : <CreditCard className="w-4 h-4"/>}
                     {buyingId === pkg.id ? 'Processing…' : `Buy for ₹${pkg.price?.toLocaleString()}`}
                   </button>
+                  <button
+                    onClick={() => buyPackageUpi(pkg)}
+                    disabled={buyingUpiId === pkg.id}
+                    className="w-full mt-2 py-2 rounded-xl border border-border hover:bg-muted text-xs font-bold disabled:opacity-60 transition-all"
+                  >
+                    {buyingUpiId === pkg.id ? 'Loading…' : 'Pay via UPI'}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      )}
+
+      {upiModal && (
+        <ManualUpiModal
+          {...upiModal}
+          onClose={() => setUpiModal(null)}
+          onMarkedPaid={() => {}}
+        />
       )}
     </div>
   );

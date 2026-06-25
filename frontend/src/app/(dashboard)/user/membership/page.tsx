@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { membershipsApi, paymentsApi, promoCodesApi, referralsApi, membershipPlansApi } from '@/lib/api';
+import { ManualUpiModal } from '@/components/shared/ManualUpiModal';
 import { formatDate, formatCurrency, daysUntil, getMembershipBadgeColor } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,8 @@ export default function UserMembershipPage() {
   const [referralInfo, setReferralInfo] = useState<any>(null);
   const [useReferralCredit, setUseReferralCredit] = useState(false);
   const [gymPlans, setGymPlans] = useState<any[]>([]);
+  const [upiModal, setUpiModal] = useState<any>(null);
+  const [purchasingUpi, setPurchasingUpi] = useState(false);
 
   useEffect(() => {
     membershipsApi.getAll({ limit: 10 })
@@ -122,6 +125,28 @@ export default function UserMembershipPage() {
       }
     } catch { }
     setPurchasing(false);
+  };
+
+  const handlePurchaseUpi = async () => {
+    if (!selectedPlan || !user?.gymId) return;
+    setPurchasingUpi(true);
+    try {
+      const price = getPrice(selectedPlan);
+      const planId = getPlanId(selectedPlan);
+      const referralCreditToApply = useReferralCredit ? Math.min(referralInfo?.referralCredit ?? 0, price) : undefined;
+      const orderRes: any = await paymentsApi.createOrder({
+        amount: price,
+        type: 'MEMBERSHIP',
+        membershipPlanId: planId,
+        promoCode: promoApplied ? promoCode.trim() : undefined,
+        referralCreditToApply,
+        useUpi: true,
+      });
+      setUpiModal({ paymentId: orderRes.paymentId, amount: orderRes.amount, vpa: orderRes.vpa, payeeName: orderRes.payeeName, description: `${getLabel(selectedPlan)} Membership` });
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Could not start UPI payment');
+    }
+    setPurchasingUpi(false);
   };
 
   return (
@@ -313,10 +338,21 @@ export default function UserMembershipPage() {
               <Button variant="brand" className="w-full" onClick={handlePurchase} loading={purchasing}>
                 <CreditCard className="w-4 h-4 mr-2" /> Pay Now
               </Button>
+              <Button variant="outline" className="w-full" onClick={handlePurchaseUpi} loading={purchasingUpi}>
+                Pay via UPI (Direct to Gym)
+              </Button>
             </div>
           </div>
         )}
       </div>
+
+      {upiModal && (
+        <ManualUpiModal
+          {...upiModal}
+          onClose={() => setUpiModal(null)}
+          onMarkedPaid={() => { setSelectedPlan(null); }}
+        />
+      )}
 
       {/* Membership history */}
       {memberships.length > 0 && (

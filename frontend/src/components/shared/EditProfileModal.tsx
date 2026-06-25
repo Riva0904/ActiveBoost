@@ -351,7 +351,9 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
     firstName: '', lastName: '', phoneCode: 'IN', phone: '',
     emergencyCode: 'IN', emergencyContact: '', gender: '', dateOfBirth: '',
     country: 'India', address: '', state: '', city: '', pincode: '', avatar: '',
+    payoutUpiVpa: '',
   });
+  const showPayoutField = user?.role === 'TRAINER' || user?.role === 'STAFF';
 
   useEffect(() => {
     usersApi.getMe().then((data: any) => {
@@ -363,6 +365,7 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
         dateOfBirth: data.dateOfBirth ? data.dateOfBirth.split('T')[0] : '',
         address: data.address ?? '', state: data.state ?? '', city: data.city ?? '',
         pincode: data.pincode ?? '', avatar: data.avatar ?? '', country: data.country ?? 'India',
+        payoutUpiVpa: data.payoutUpiVpa ?? '',
       });
     }).catch(() => {});
   }, []);
@@ -381,6 +384,7 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
         city: profile.city || undefined, state: profile.state || undefined,
         pincode: profile.pincode || undefined, avatar: profile.avatar || undefined,
         country: profile.country || undefined,
+        payoutUpiVpa: showPayoutField ? (profile.payoutUpiVpa.trim() || undefined) : undefined,
       };
       if (profile.dateOfBirth) payload.dateOfBirth = new Date(profile.dateOfBirth).toISOString();
       const updated: any = await usersApi.updateMe(payload);
@@ -536,6 +540,13 @@ export function EditProfileModal({ onClose }: { onClose: () => void }) {
                       placeholder="400001"
                       className={cn(inp, 'focus:border-teal-500 focus:ring-teal-500/10')} />
                   </Field>
+                  {showPayoutField && (
+                    <Field label="Your UPI ID (for salary payouts)">
+                      <input value={profile.payoutUpiVpa} onChange={e => set('payoutUpiVpa', e.target.value)}
+                        placeholder="yourname@upi"
+                        className={cn(inp, 'focus:border-teal-500 focus:ring-teal-500/10')} />
+                    </Field>
+                  )}
                   <Field label="State / Province">
                     {isIndia ? (
                       <div className="relative">

@@ -13,6 +13,7 @@ import { usersApi, membershipsApi, authApi, trainersApi, staffsApi, membershipPl
 import { formatDate, getInitials, getMembershipBadgeColor } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { StatsCard } from '@/components/shared/StatsCard';
+import { PaySalaryModal } from '@/components/shared/PaySalaryModal';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 
@@ -648,6 +649,7 @@ function TrainersTab() {
   const [editT, setEditT] = useState<any>(null);
   const [removeT, setRemoveT] = useState<any>(null);
   const [removing, setRemoving] = useState(false);
+  const [payT, setPayT] = useState<any>(null);
 
   const fetch = () => { setLoading(true); trainersApi.getAll({limit:100}).then((res: any)=>setTrainers(res.data??[])).catch(()=>{}).finally(()=>setLoading(false)); };
   useEffect(() => { fetch(); }, []);
@@ -671,6 +673,7 @@ function TrainersTab() {
       {showAdd&&<AddTrainerModal onClose={()=>setShowAdd(false)} onSuccess={fetch}/>}
       {assignT&&<AssignMemberModal trainer={assignT} onClose={()=>setAssignT(null)} onSuccess={fetch}/>}
       {removeT&&<RemoveConfirm title="Remove Trainer?" name={`${removeT.user?.firstName} ${removeT.user?.lastName}`} removing={removing} onClose={()=>setRemoveT(null)} onConfirm={handleRemove}/>}
+      {payT&&<PaySalaryModal userId={payT.userId} userName={`${payT.user?.firstName} ${payT.user?.lastName}`} payoutUpiVpa={payT.user?.payoutUpiVpa} onClose={()=>setPayT(null)} onSuccess={fetch}/>}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">{statCards.map(s=><StatsCard key={s.title} {...s}/>)}</div>
 
@@ -706,6 +709,7 @@ function TrainersTab() {
                   </div>
                   <div className="flex gap-2">
                     <button onClick={()=>setAssignT(t)} className={`flex-1 py-2 text-xs font-bold rounded-xl text-white ${grad} hover:opacity-90`}>Assign</button>
+                    <button onClick={()=>setPayT(t)} className="flex-1 py-2 text-xs font-bold rounded-xl border border-border hover:bg-muted">Pay Salary</button>
                     <button onClick={()=>setRemoveT(t)} className="w-8 py-2 text-xs rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center border border-rose-200 dark:border-rose-800/50"><Trash2 className="w-3.5 h-3.5"/></button>
                   </div>
                 </div>
@@ -813,6 +817,7 @@ function StaffTab() {
   const [editS, setEditS] = useState<any>(null);
   const [removeS, setRemoveS] = useState<any>(null);
   const [removing, setRemoving] = useState(false);
+  const [payS, setPayS] = useState<any>(null);
 
   const fetch = () => { setLoading(true); staffsApi.getAll({limit:100}).then((res: any)=>setStaffs(res.data??[])).catch(()=>{}).finally(()=>setLoading(false)); };
   useEffect(() => { fetch(); }, []);
@@ -835,6 +840,7 @@ function StaffTab() {
     <div className="space-y-5">
       {showAdd&&<AddStaffModal onClose={()=>setShowAdd(false)} onSuccess={fetch}/>}
       {removeS&&<RemoveConfirm title="Remove Staff?" name={`${removeS.user?.firstName} ${removeS.user?.lastName}`} removing={removing} onClose={()=>setRemoveS(null)} onConfirm={handleRemove}/>}
+      {payS&&<PaySalaryModal userId={payS.userId} userName={`${payS.user?.firstName} ${payS.user?.lastName}`} payoutUpiVpa={payS.user?.payoutUpiVpa} onClose={()=>setPayS(null)} onSuccess={fetch}/>}
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">{statCards.map(s=><StatsCard key={s.title} {...s}/>)}</div>
 
@@ -865,6 +871,7 @@ function StaffTab() {
                 </div>
                 <div className="flex gap-2 pt-1">
                   <button onClick={()=>setEditS(s)} className="flex-1 py-2 text-xs font-bold rounded-xl gradient-teal text-white hover:opacity-90">Edit</button>
+                  <button onClick={()=>setPayS(s)} className="flex-1 py-2 text-xs font-bold rounded-xl border border-border hover:bg-muted">Pay Salary</button>
                   <button onClick={()=>setRemoveS(s)} className="w-8 py-2 text-xs rounded-xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 flex items-center justify-center border border-rose-200 dark:border-rose-800/50"><Trash2 className="w-3.5 h-3.5"/></button>
                 </div>
               </div>

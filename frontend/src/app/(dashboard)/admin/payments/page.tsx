@@ -197,21 +197,37 @@ export default function PaymentsPage() {
   const [showModal, setShowModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
   const [search, setSearch] = useState('');
+  const [pendingUpi, setPendingUpi] = useState<any[]>([]);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [p, s]: any[] = await Promise.all([
+      const [p, s, pu]: any[] = await Promise.all([
         paymentsApi.getAll({ limit: 30 }),
         paymentsApi.getStats(),
+        paymentsApi.getPendingManualUpi(),
       ]);
       setPayments(p.data ?? []);
       setStats(s);
+      setPendingUpi(Array.isArray(pu) ? pu : pu.data ?? []);
     } catch {}
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const confirmUpi = async (id: string) => {
+    setConfirmingId(id);
+    try {
+      await paymentsApi.confirmManualUpi(id);
+      toast.success('Payment confirmed — plan activated');
+      fetchData();
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Failed to confirm payment');
+    }
+    setConfirmingId(null);
+  };
 
   const filtered = payments.filter(p => {
     const matchStatus = !filterStatus || p.status === filterStatus;
@@ -243,6 +259,35 @@ export default function PaymentsPage() {
           <Plus className="w-4 h-4" /> Record Payment
         </button>
       </div>
+
+      {/* ─── Pending UPI Confirmations ─── */}
+      {pendingUpi.length > 0 && (
+        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="w-4 h-4 text-amber-600" />
+            <h3 className="font-bold text-sm">Pending UPI Confirmations ({pendingUpi.length})</h3>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">Members marked these as paid. Check your UPI/bank app, then confirm — confirming activates their plan instantly.</p>
+          <div className="space-y-2">
+            {pendingUpi.map((p: any) => (
+              <div key={p.id} className="flex items-center justify-between gap-3 bg-card border border-border/60 rounded-xl p-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{p.member?.user?.firstName} {p.member?.user?.lastName} <span className="text-muted-foreground font-normal">· {p.type}</span></p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(p.amount)} · marked paid {formatDate(p.memberConfirmedAt)}</p>
+                </div>
+                <button
+                  onClick={() => confirmUpi(p.id)}
+                  disabled={confirmingId === p.id}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl gradient-brand text-white text-xs font-bold hover:opacity-90 disabled:opacity-60 shrink-0"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {confirmingId === p.id ? 'Confirming…' : 'Confirm Received'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ─── Revenue Stats ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-fast">

@@ -8,10 +8,10 @@
 // so it still connects directly to NEXT_PUBLIC_BACKEND_ORIGIN — see frontend/src/lib/socket.ts.
 const BACKEND_ORIGIN = process.env.NEXT_PUBLIC_BACKEND_ORIGIN;
 
-function backendConnectSrc() {
-  if (!BACKEND_ORIGIN) return '';
+function originToConnectSrc(rawUrl) {
+  if (!rawUrl) return '';
   try {
-    const origin = new URL(BACKEND_ORIGIN).origin;
+    const origin = new URL(rawUrl).origin;
     const wsOrigin = origin.replace(/^http/, 'ws');
     return ` ${origin} ${wsOrigin}`;
   } catch {
@@ -19,13 +19,24 @@ function backendConnectSrc() {
   }
 }
 
+function backendConnectSrc() {
+  return originToConnectSrc(BACKEND_ORIGIN);
+}
+
+// NEXT_PUBLIC_API_URL can point at a LAN IP during dev (testing from another device
+// on the same network) instead of localhost — CSP must allow whatever it's actually
+// set to, or every API fetch gets silently blocked by the browser.
+function apiUrlConnectSrc() {
+  return originToConnectSrc(process.env.NEXT_PUBLIC_API_URL);
+}
+
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.gstatic.com",
-      `connect-src 'self' ws://localhost:3001 wss://localhost:3001 http://localhost:3001${backendConnectSrc()} https://api.razorpay.com https://*.firebaseio.com https://*.googleapis.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://cdn.razorpay.com https://www.gstatic.com",
+      `connect-src 'self' ws://localhost:3001 wss://localhost:3001 http://localhost:3001${backendConnectSrc()}${apiUrlConnectSrc()} https://api.razorpay.com https://lumberjack.razorpay.com https://*.firebaseio.com https://*.googleapis.com`,
       "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",

@@ -175,6 +175,17 @@ export const paymentsApi = {
   createOrder: (data: any) => api.post('/payments/create-order', data),
   verify: (data: any) => api.post('/payments/verify', data),
   recordCash: (data: any) => api.post('/payments/cash', data),
+  markPaid: (paymentId: string) => api.post(`/payments/${paymentId}/mark-paid`),
+  getPendingManualUpi: () => api.get('/payments/manual-upi/pending'),
+  confirmManualUpi: (paymentId: string) => api.post(`/payments/${paymentId}/confirm-upi`),
+};
+
+// Salary Payouts (gym admin -> trainer/staff, manual transfer + record only)
+export const salaryPayoutsApi = {
+  create: (data: { userId: string; amount: number; periodLabel: string; notes?: string }) => api.post('/salary-payouts', data),
+  getAll: (params?: any) => api.get('/salary-payouts', { params }),
+  getMine: () => api.get('/salary-payouts/my'),
+  markPaid: (id: string) => api.patch(`/salary-payouts/${id}/mark-paid`),
 };
 
 // Supplements
@@ -185,7 +196,7 @@ export const supplementsApi = {
   update: (id: string, data: any) => api.patch(`/supplements/${id}`, data),
   delete: (id: string) => api.delete(`/supplements/${id}`),
   updateStock: (id: string, quantity: number) => api.patch(`/supplements/${id}/stock`, { quantity }),
-  createCheckout: (items: any[]) => api.post('/supplements/checkout', { items }),
+  createCheckout: (items: any[], useUpi = false) => api.post('/supplements/checkout', { items, useUpi }),
   getOrders: (params?: any) => api.get('/supplements/orders', { params }),
   updateOrderStatus: (orderId: string, status: string) =>
     api.patch(`/supplements/orders/${orderId}/status`, { status }),
@@ -200,7 +211,7 @@ export const workoutPlansApi = {
   getPackages: () => api.get('/workout-plans/packages'),
   createPackage: (data: any) => api.post('/workout-plans/packages', data),
   updatePackage: (id: string, data: any) => api.patch(`/workout-plans/packages/${id}`, data),
-  buyPackage: (id: string) => api.post(`/workout-plans/packages/${id}/buy`),
+  buyPackage: (id: string, useUpi = false) => api.post(`/workout-plans/packages/${id}/buy`, { useUpi }),
 };
 
 // Diet Plans
@@ -210,7 +221,7 @@ export const dietPlansApi = {
   getPackages: () => api.get('/diet-plans/packages'),
   createPackage: (data: any) => api.post('/diet-plans/packages', data),
   updatePackage: (id: string, data: any) => api.patch(`/diet-plans/packages/${id}`, data),
-  buyPackage: (id: string) => api.post(`/diet-plans/packages/${id}/buy`),
+  buyPackage: (id: string, useUpi = false) => api.post(`/diet-plans/packages/${id}/buy`, { useUpi }),
 };
 
 // Notifications

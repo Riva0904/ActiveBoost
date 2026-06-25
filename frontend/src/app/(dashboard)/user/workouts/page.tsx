@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Dumbbell, Zap, ChevronRight, Target, Clock, BarChart2, ShoppingBag, CreditCard, CheckCircle } from 'lucide-react';
 import { workoutPlansApi, paymentsApi } from '@/lib/api';
+import { ManualUpiModal } from '@/components/shared/ManualUpiModal';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,8 @@ export default function WorkoutsPage() {
   const [level, setLevel] = useState('BEGINNER');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [upiModal, setUpiModal] = useState<any>(null);
+  const [buyingUpiId, setBuyingUpiId] = useState<string | null>(null);
 
   const fetchMyPlans = () => {
     workoutPlansApi.getMyPlans()
@@ -80,6 +83,17 @@ export default function WorkoutsPage() {
       toast.error(e.response?.data?.message ?? 'Purchase failed');
     }
     setBuyingId(null);
+  };
+
+  const buyPackageUpi = async (pkg: any) => {
+    setBuyingUpiId(pkg.id);
+    try {
+      const orderRes: any = await workoutPlansApi.buyPackage(pkg.id, true);
+      setUpiModal({ paymentId: orderRes.paymentId, amount: orderRes.amount, vpa: orderRes.vpa, payeeName: orderRes.payeeName, description: `${pkg.name} — ${pkg.durationDays ?? 30} days` });
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Purchase failed');
+    }
+    setBuyingUpiId(null);
   };
 
   const purchasedPlanIds = new Set(assignments.map((a: any) => a.workoutPlanId ?? a.workoutPlan?.id));
@@ -166,14 +180,22 @@ export default function WorkoutsPage() {
                         <CheckCircle className="w-4 h-4" />Active
                       </div>
                     ) : (
-                      <button
-                        onClick={() => buyPackage(pkg)}
-                        disabled={buyingId === pkg.id}
-                        className="w-full py-2.5 rounded-xl gradient-purple text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-60 transition-all">
-                        {buyingId === pkg.id
-                          ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>Processing…</>
-                          : <><CreditCard className="w-4 h-4"/>Buy Now</>}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => buyPackage(pkg)}
+                          disabled={buyingId === pkg.id}
+                          className="w-full py-2.5 rounded-xl gradient-purple text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-60 transition-all">
+                          {buyingId === pkg.id
+                            ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>Processing…</>
+                            : <><CreditCard className="w-4 h-4"/>Buy Now</>}
+                        </button>
+                        <button
+                          onClick={() => buyPackageUpi(pkg)}
+                          disabled={buyingUpiId === pkg.id}
+                          className="w-full mt-2 py-2 rounded-xl border border-border hover:bg-muted text-xs font-bold disabled:opacity-60 transition-all">
+                          {buyingUpiId === pkg.id ? 'Loading…' : 'Pay via UPI'}
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -259,6 +281,14 @@ export default function WorkoutsPage() {
           </div>
         )}
       </div>
+
+      {upiModal && (
+        <ManualUpiModal
+          {...upiModal}
+          onClose={() => setUpiModal(null)}
+          onMarkedPaid={() => {}}
+        />
+      )}
     </div>
   );
 }
